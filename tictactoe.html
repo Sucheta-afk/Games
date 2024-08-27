@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Page</title>
+    <style>
+        body {
+            background-color: lightblue;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            overflow: hidden; /* Prevent scrollbars from appearing */
+        }
+        h1 {
+            color: darkblue;
+            margin-bottom: 20px;
+        }
+        .table {
+            border-collapse: collapse;
+        }
+        .table td {
+            border: 10px solid black;
+            width: 100px;
+            height: 100px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 2em;
+            cursor: pointer;
+        }
+        .game-over {
+            font-size: 1.5em;
+            margin-top: 20px;
+            color: red;
+        }
+        .Text p {
+            margin-top: 20px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@latest/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+    <h1>Welcome to Tic-Tac-Toe!</h1>
+    <table class="table">
+        <tr>
+            <td data-cell="0"></td>
+            <td data-cell="1"></td>
+            <td data-cell="2"></td>
+        </tr>
+        <tr>
+            <td data-cell="3"></td>
+            <td data-cell="4"></td>
+            <td data-cell="5"></td>
+        </tr>
+        <tr>
+            <td data-cell="6"></td>
+            <td data-cell="7"></td>
+            <td data-cell="8"></td>
+        </tr>
+    </table>
+    <div id="message" class="game-over"></div>
+    <div class="Text">
+        <p>
+            <button onclick="home()">HOME</button>
+        </p>
+    </div>
+
+    <script>
+        var p1 = prompt('Player X Name:');
+        var p2 = prompt('Player O Name:');
+
+        let currentPlayer = 'X'; // Start with player X
+        let board = Array(9).fill('');
+        const cells = document.querySelectorAll('.table td');
+        const messageDiv = document.getElementById('message');
+
+        const winPatterns = [
+            [0, 1, 2], // Top row
+            [3, 4, 5], // Middle row
+            [6, 7, 8], // Bottom row
+            [0, 3, 6], // Left column
+            [1, 4, 7], // Middle column
+            [2, 5, 8], // Right column
+            [0, 4, 8], // Diagonal \
+            [2, 4, 6]  // Diagonal /
+        ];
+
+        function checkWin() {
+            for (const pattern of winPatterns) {
+                const [a, b, c] = pattern;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    return board[a];
+                }
+            }
+            return null;
+        }
+
+        function checkDraw() {
+            return board.every(cell => cell) && !checkWin();
+        }
+
+        function triggerConfetti() {
+            confetti({
+                particleCount: 200,
+                spread: 100,
+                origin: { x: 0.5, y: 0.5 },
+                colors: ['#ff0', '#0f0', '#00f', '#f00', '#f0f'],
+                zIndex: 1000
+            });
+        }
+
+        function handleClick(event) {
+            const cellIndex = event.target.getAttribute('data-cell');
+            if (board[cellIndex] || messageDiv.textContent) return; // Ignore click if cell is not empty or game is over
+
+            board[cellIndex] = currentPlayer;
+            event.target.textContent = currentPlayer;
+            const winner = checkWin();
+
+            if (winner) {
+                messageDiv.textContent = `Player ${winner === 'X' ? p1 : p2} wins!`;
+                triggerConfetti(); // Trigger confetti effect
+                return;
+            }
+
+            if (checkDraw()) {
+                messageDiv.textContent = "It's a draw!";
+                return;
+            }
+
+            currentPlayer = (currentPlayer === 'X') ? 'O' : 'X'; // Switch player
+        }
+
+        cells.forEach(cell => cell.addEventListener('click', handleClick));
+
+        function home() {
+            window.location.href = 'home.html'; 
+        }
+    </script>
+</body>
+</html>
